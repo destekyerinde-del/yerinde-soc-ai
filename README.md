@@ -165,5 +165,5 @@ diyerek sistemi kurabiliriz.
 Yedekten dönmek için de:
 ./deploy/restore.sh
 kullanırız.
-Bence şimdi tam olarak bunu yapalım. Önce mevcut sistemimize dokunmadan requirements.txt + systemd service + backup script + restore script hazırlayalım; sonra test edip bunları ikinci bir GitHub commit'i olarak gönderelim.
+
 
