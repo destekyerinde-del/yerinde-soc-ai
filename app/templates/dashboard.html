@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>YERİNDE SOC AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0b1120;
+            color: #e5e7eb;
+        }
+
+        .header {
+            background: #111827;
+            border-bottom: 1px solid #1f2937;
+            padding: 22px 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+
+        .header p {
+            margin: 6px 0 0;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: auto;
+            padding: 28px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .card-title {
+            color: #9ca3af;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .card-value {
+            font-size: 34px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .critical {
+            border-left: 4px solid #ef4444;
+        }
+
+        .high {
+            border-left: 4px solid #f97316;
+        }
+
+        .medium {
+            border-left: 4px solid #eab308;
+        }
+
+        .low {
+            border-left: 4px solid #22c55e;
+        }
+
+        .overview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .panel {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .status-box {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .status-label {
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .status-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        .table-panel {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        .table-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            color: #9ca3af;
+            font-size: 12px;
+            text-transform: uppercase;
+            background: #0f172a;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #172033;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-open {
+            background: #3f1d1d;
+            color: #fca5a5;
+        }
+
+        .badge-closed {
+            background: #172033;
+            color: #9ca3af;
+        }
+
+        .risk-critical {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .risk-high {
+            color: #f97316;
+            font-weight: bold;
+        }
+
+        .risk-medium {
+            color: #eab308;
+            font-weight: bold;
+        }
+
+        .risk-low {
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .risk-none {
+            color: #6b7280;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .overview {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            table {
+                min-width: 900px;
+            }
+
+            .table-panel {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <h1>🛡️ YERİNDE SOC AI</h1>
+    <p>Security Operations Center • Wazuh AI Monitoring</p>
+</header>
+
+<main class="container">
+
+    <section class="cards">
+
+        <div class="card critical">
+            <div class="card-title">Kritik Risk</div>
+            <div class="card-value"><span id="critical-risk">{{ summary.critical_count or 0 }}</span></div>
+        </div>
+
+        <div class="card high">
+            <div class="card-title">Yüksek Risk</div>
+            <div class="card-value"><span id="high-risk">{{ summary.high_count or 0 }}</span></div>
+        </div>
+
+        <div class="card medium">
+            <div class="card-title">Orta Risk</div>
+            <div class="card-value"><span id="medium-risk">{{ summary.medium_count or 0 }}</span></div>
+        </div>
+
+        <div class="card low">
+            <div class="card-title">Düşük Risk</div>
+            <div class="card-value"><span id="low-risk">{{ summary.low_count or 0 }}</span></div>
+        </div>
+
+    </section>
+
+    <section class="overview">
+
+        <div class="panel">
+            <h2>Incident Durumu</h2>
+
+            <div class="status-grid">
+
+                <div class="status-box">
+                    <div class="status-label">Toplam Incident</div>
+                    <div class="status-value">
+                        <span id="total-incidents">{{ summary.total or 0 }}</span>
+                    </div>
+                </div>
+
+                <div class="status-box">
+                    <div class="status-label">Açık Incident</div>
+                    <div class="status-value">
+                        <span id="open-incidents">{{ summary.open_count or 0 }}</span>
+                    </div>
+                </div>
+
+                <div class="status-box">
+                    <div class="status-label">Kapanmış Incident</div>
+                    <div class="status-value">
+                        <span id="closed-incidents">{{ summary.closed_count or 0 }}</span>
+                    </div>
+                </div>
+
+                <div class="status-box">
+                    <div class="status-label">AI Analizli Risk</div>
+                    <div class="status-value">
+                        <span id="ai-risk-count">{{ (summary.critical_count or 0)
+                         + (summary.high_count or 0)
+                         + (summary.medium_count or 0)
+                         + (summary.low_count or 0) }}</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Sistem Durumu</h2>
+
+            <div class="status-grid">
+
+                <div class="status-box">
+                    <div class="status-label">Wazuh</div>
+                    <div class="status-value" style="color:#22c55e;">
+                        ● AKTİF
+                    </div>
+                </div>
+
+                <div class="status-box">
+                    <div class="status-label">AI Engine</div>
+                    <div class="status-value" style="color:#22c55e;">
+                        ● AKTİF
+                    </div>
+                </div>
+
+                <div class="status-box">
+                    <div class="status-label">Telegram</div>
+                    <div class="status-value" style="color:#22c55e;">
+                        ● AKTİF
+                    </div>
+                </div>
+
+                <div class="status-box">
+                    <div class="status-label">Database</div>
+                    <div class="status-value" style="color:#22c55e;">
+                        ● AKTİF
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+
+    <section class="table-panel">
+
+        <div class="table-header">
+            <h2>Son Incidentlar</h2>
+        </div>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Kaynak PC</th>
+                    <th>Rule ID</th>
+                    <th>Durum</th>
+                    <th>Alarm</th>
+                    <th>AI Risk</th>
+                    <th>Risk Skoru</th>
+                    <th>İlk Görülme</th>
+                    <th>Son Görülme</th>
+                </tr>
+            </thead>
+
+            <tbody id="incident-table-body">
+
+            {% for incident in recent_incidents %}
+
+                <tr>
+
+                    <td>
+                        <a href="/incidents/{{ incident.id }}"
+   style="color:#60a5fa;text-decoration:none;font-weight:bold;">
+    #{{ incident.id }}
+</a>
+                    </td>
+
+                    <td>
+                        {{ incident.source_host }}
+                    </td>
+
+                    <td>
+                        {{ incident.rule_id }}
+                    </td>
+
+                    <td>
+
+                        {% if incident.status == "OPEN" %}
+
+                            <span class="badge badge-open">
+                                AÇIK
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-closed">
+                                KAPALI
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ incident.alert_count }}
+                    </td>
+
+                    <td>
+
+                        {% if incident.ai_risk == "KRİTİK" %}
+
+                            <span class="risk-critical">
+                                KRİTİK
+                            </span>
+
+                        {% elif incident.ai_risk == "YÜKSEK" %}
+
+                            <span class="risk-high">
+                                YÜKSEK
+                            </span>
+
+                        {% elif incident.ai_risk == "ORTA" %}
+
+                            <span class="risk-medium">
+                                ORTA
+                            </span>
+
+                        {% elif incident.ai_risk == "DÜŞÜK" %}
+
+                            <span class="risk-low">
+                                DÜŞÜK
+                            </span>
+
+                        {% else %}
+
+                            <span class="risk-none">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ incident.risk_score if incident.risk_score is not none else "—" }}
+                    </td>
+
+                    <td>
+                        {{ incident.first_seen }}
+                    </td>
+
+                    <td>
+                        {{ incident.last_seen }}
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+                    <td colspan="9" style="text-align:center;">
+                        Henüz incident bulunamadı.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <div class="footer">
+        YERİNDE SOC AI • Wazuh + Ollama Security Operations Center
+    </div>
+
+</main>
+
+
+<script>
+(function () {
+
+    const REFRESH_INTERVAL = 5000;
+
+    async function refreshDashboard() {
+
+        try {
+
+            const response = await fetch("/api/dashboard", {
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error("Dashboard API HTTP " + response.status);
+            }
+
+            const data = await response.json();
+
+            const summary = data.summary || {};
+            const incidents = data.recent_incidents || [];
+
+            updateText("critical-risk", summary.critical_count || 0);
+            updateText("high-risk", summary.high_count || 0);
+            updateText("medium-risk", summary.medium_count || 0);
+            updateText("low-risk", summary.low_count || 0);
+
+            updateText("total-incidents", summary.total || 0);
+            updateText("open-incidents", summary.open_count || 0);
+            updateText("closed-incidents", summary.closed_count || 0);
+
+            const aiRisk =
+                (summary.critical_count || 0) +
+                (summary.high_count || 0) +
+                (summary.medium_count || 0) +
+                (summary.low_count || 0);
+
+            updateText("ai-risk-count", aiRisk);
+
+            updateIncidentTable(incidents);
+
+            console.log(
+                "YERİNDE SOC AI canlı güncellendi:",
+                new Date().toLocaleTimeString("tr-TR")
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Dashboard canlı yenileme hatası:",
+                error
+            );
+
+        }
+    }
+
+
+    function updateText(id, value) {
+
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.textContent = value;
+        }
+
+    }
+
+
+    function riskHtml(risk) {
+
+        if (risk === "KRİTİK") {
+            return '<span class="risk-critical">KRİTİK</span>';
+        }
+
+        if (risk === "YÜKSEK") {
+            return '<span class="risk-high">YÜKSEK</span>';
+        }
+
+        if (risk === "ORTA") {
+            return '<span class="risk-medium">ORTA</span>';
+        }
+
+        if (risk === "DÜŞÜK") {
+            return '<span class="risk-low">DÜŞÜK</span>';
+        }
+
+        return '<span class="risk-none">—</span>';
+    }
+
+
+    function statusHtml(status) {
+
+        if (status === "OPEN") {
+            return '<span class="badge badge-open">AÇIK</span>';
+        }
+
+        return '<span class="badge badge-closed">KAPALI</span>';
+    }
+
+
+    function escapeHtml(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    function updateIncidentTable(incidents) {
+
+        const tbody = document.getElementById(
+            "incident-table-body"
+        );
+
+        if (!tbody) {
+            return;
+        }
+
+        if (!incidents.length) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align:center;">
+                        Henüz incident bulunamadı.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tbody.innerHTML = incidents.map(function (incident) {
+
+            const riskScore =
+                incident.risk_score !== null &&
+                incident.risk_score !== undefined
+                    ? incident.risk_score
+                    : "—";
+
+            return `
+                <tr>
+
+                    <td>
+                        <a
+                            href="/incidents/${escapeHtml(incident.id)}"
+                            style="color:#60a5fa;text-decoration:none;font-weight:bold;"
+                        >
+                            #${escapeHtml(incident.id)}
+                        </a>
+                    </td>
+
+                    <td>
+                        ${escapeHtml(incident.source_host)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(incident.rule_id)}
+                    </td>
+
+                    <td>
+                        ${statusHtml(incident.status)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(incident.alert_count)}
+                    </td>
+
+                    <td>
+                        ${riskHtml(incident.ai_risk)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(riskScore)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(incident.first_seen)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(incident.last_seen)}
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+
+    }
+
+
+    /*
+     * İlk yüklemeden sonra her 5 saniyede
+     * dashboard verisini kontrol et.
+     */
+    setInterval(
+        refreshDashboard,
+        REFRESH_INTERVAL
+    );
+
+})();
+
+</script>
+
+
+<!-- YERINDE_SOC_LIVE_REFRESH_START -->
+<script>
+(function () {
+    const REFRESH_INTERVAL = 5000;
+    let lastData = null;
+
+    function setText(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value ?? 0;
+        }
+    }
+
+    async function refreshDashboard() {
+        try {
+            const response = await fetch("/api/dashboard", {
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+
+            const signature = JSON.stringify(data);
+
+            if (lastData === signature) {
+                return;
+            }
+
+            lastData = signature;
+
+            const summary = data.summary || {};
+
+            setText("critical-count", summary.critical_count || 0);
+            setText("high-count", summary.high_count || 0);
+            setText("medium-count", summary.medium_count || 0);
+            setText("low-count", summary.low_count || 0);
+
+            setText("total-count", summary.total || 0);
+            setText("open-count", summary.open_count || 0);
+            setText("closed-count", summary.closed_count || 0);
+
+            const aiRisk =
+                (summary.critical_count || 0) +
+                (summary.high_count || 0) +
+                (summary.medium_count || 0) +
+                (summary.low_count || 0);
+
+            setText("ai-risk-count", aiRisk);
+
+            /*
+             * Incident tablosu değiştiyse sayfayı yenile.
+             * Böylece yeni incident geldiğinde tablo da kesin olarak
+             * güncel hale gelir.
+             */
+            const currentRows = document.querySelectorAll(
+                "table tbody tr"
+            );
+
+            const serverIncidentCount =
+                (data.recent_incidents || []).length;
+
+            if (currentRows.length !== serverIncidentCount &&
+                serverIncidentCount > 0) {
+                window.location.reload();
+            }
+
+        } catch (error) {
+            console.debug("Dashboard canlı yenileme:", error);
+        }
+    }
+
+    refreshDashboard();
+    setInterval(refreshDashboard, REFRESH_INTERVAL);
+})();
+</script>
+<!-- YERINDE_SOC_LIVE_REFRESH_END -->
+
+</body>
+</html>

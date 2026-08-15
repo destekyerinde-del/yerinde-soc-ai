@@ -46,7 +46,7 @@ class Config:
 
     ollama_model: str = os.getenv(
         "OLLAMA_MODEL",
-        "qingmian/Qwen2.5-7B-CyberSecurity"
+        "OpenNix/wazuh-llama-3.1-8B-v1"
     )
 
     ai_timeout: int = int(

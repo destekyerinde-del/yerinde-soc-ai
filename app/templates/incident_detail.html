@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Incident #{{ incident.id }} • YERİNDE SOC AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0b1120;
+            color: #e5e7eb;
+        }
+
+        .header {
+            background: #111827;
+            border-bottom: 1px solid #1f2937;
+            padding: 22px 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+
+        .header p {
+            margin: 6px 0 0;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: auto;
+            padding: 28px;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .panel {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .panel.full {
+            grid-column: 1 / -1;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .label {
+            color: #9ca3af;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .value {
+            margin-top: 6px;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .risk {
+            color: #eab308;
+        }
+
+        .open {
+            color: #fca5a5;
+        }
+
+        .closed {
+            color: #9ca3af;
+        }
+
+        .ai {
+            border-left: 4px solid #60a5fa;
+        }
+
+        .ai-row {
+            margin-bottom: 18px;
+        }
+
+        .ai-label {
+            color: #9ca3af;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .ai-value {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .evidence {
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 18px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.55;
+            color: #cbd5e1;
+            max-height: 600px;
+            overflow: auto;
+        }
+
+        .alert {
+            background: #0f172a;
+            border: 1px solid #1f2937;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+
+        .alert:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #172033;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .panel.full {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <h1>🛡️ YERİNDE SOC AI</h1>
+    <p>Incident Detayı • Wazuh AI Monitoring</p>
+</header>
+
+<main class="container">
+
+    <a class="back" href="/">← Dashboard'a dön</a>
+
+    <div class="grid">
+
+        <section class="panel">
+            <h2>🚨 Incident Bilgileri</h2>
+
+            <div class="info-grid">
+
+                <div class="info">
+                    <div class="label">Incident ID</div>
+                    <div class="value">#{{ incident.id }}</div>
+                </div>
+
+                <div class="info">
+                    <div class="label">Kaynak PC</div>
+                    <div class="value">{{ incident.source_host }}</div>
+                </div>
+
+                <div class="info">
+                    <div class="label">Rule ID</div>
+                    <div class="value">{{ incident.rule_id }}</div>
+                </div>
+
+                <div class="info">
+                    <div class="label">Durum</div>
+                    <div class="value {% if incident.status == 'OPEN' %}open{% else %}closed{% endif %}">
+                        {{ incident.status }}
+                    </div>
+                </div>
+
+                <div class="info">
+                    <div class="label">AI Risk</div>
+                    <div class="value risk">
+                        {{ incident.ai_risk or "—" }}
+                    </div>
+                </div>
+
+                <div class="info">
+                    <div class="label">Risk Skoru</div>
+                    <div class="value">
+                        {{ incident.risk_score if incident.risk_score is not none else "—" }}
+                    </div>
+                </div>
+
+                <div class="info">
+                    <div class="label">Alarm Sayısı</div>
+                    <div class="value">
+                        {{ incident.alert_count }}
+                    </div>
+                </div>
+
+                <div class="info">
+                    <div class="label">Correlation Window</div>
+                    <div class="value">
+                        {{ incident.correlation_window_seconds }} sn
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        {% if alerts %}
+
+        {% set latest = alerts[0] %}
+
+        <section class="panel ai">
+            <h2>🤖 AI Analizi</h2>
+
+            <div class="ai-row">
+                <div class="ai-label">RİSK</div>
+                <div class="ai-value risk">
+                    {{ latest.ai_risk or incident.ai_risk or "—" }}
+                </div>
+            </div>
+
+            <div class="ai-row">
+                <div class="ai-label">SEBEP</div>
+                <div class="ai-value">
+                    {{ latest.ai_reason or "—" }}
+                </div>
+            </div>
+
+            <div class="ai-row">
+                <div class="ai-label">ÖNERİ</div>
+                <div class="ai-value">
+                    {{ latest.ai_recommendation or "—" }}
+                </div>
+            </div>
+
+            <div class="ai-row">
+                <div class="ai-label">AI DURUMU</div>
+                <div class="ai-value">
+                    {{ latest.ai_status }}
+                </div>
+            </div>
+        </section>
+
+        {% endif %}
+
+
+        <section class="panel full">
+            <h2>🔎 Teknik Kanıtlar</h2>
+
+            {% if alerts %}
+
+                {% for alert in alerts %}
+
+                <div class="alert">
+
+                    <div class="alert-header">
+                        <strong>
+                            Alarm #{{ alert.id }} • Mail {{ alert.mail_id }}
+                        </strong>
+
+                        <span class="badge">
+                            Rule Level {{ alert.rule_level }}
+                        </span>
+                    </div>
+
+                    <p>
+                        <strong>Rule:</strong>
+                        {{ alert.rule_id }}
+                        —
+                        {{ alert.rule_description }}
+                    </p>
+
+                    <div class="evidence">{{ alert.alert_body }}</div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="evidence">
+                    Bu incident'e bağlı alarm bulunamadı.
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <section class="panel full">
+            <h2>📋 Incident Zaman Bilgileri</h2>
+
+            <div class="info-grid">
+
+                <div class="info">
+                    <div class="label">İlk Görülme</div>
+                    <div class="value">
+                        {{ incident.first_seen }}
+                    </div>
+                </div>
+
+                <div class="info">
+                    <div class="label">Son Görülme</div>
+                    <div class="value">
+                        {{ incident.last_seen }}
+                    </div>
+                </div>
+
+                <div class="info">
+                    <div class="label">Oluşturulma</div>
+                    <div class="value">
+                        {{ incident.created_at }}
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <div class="footer">
+        YERİNDE SOC AI • Wazuh + Ollama Security Operations Center
+    </div>
+
+</main>
+
+</body>
+</html>
