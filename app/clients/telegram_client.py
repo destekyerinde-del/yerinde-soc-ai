@@ -122,6 +122,34 @@ class TelegramClient:
             )
 
             return False
+    def get_updates(
+    self,
+    offset: int | None = None,
+    timeout: int = 30,
+) -> list[dict]:
+    """Poll Telegram for new messages (long polling)."""
+
+    self._validate()
+
+    params: dict[str, str] = {"timeout": str(timeout)}
+
+    if offset is not None:
+        params["offset"] = str(offset)
+
+    url = (
+        f"https://api.telegram.org/bot{self.token}/getUpdates"
+        f"?{urllib.parse.urlencode(params)}"
+    )
+
+    request = urllib.request.Request(url, method="GET")
+
+    with urllib.request.urlopen(request, timeout=timeout + 10) as response:
+        result = json.loads(response.read().decode())
+
+    if not result.get("ok"):
+        raise RuntimeError(f"Telegram API hatası: {result}")
+
+    return result.get("result", [])
 
     # ---------------------------------------------------------
     # Send message
