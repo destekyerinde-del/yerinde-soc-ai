@@ -111,7 +111,7 @@ app/
 ├── clients/
 │   ├── gmail_client.py
 │   └── telegram_client.py
-|   └── telegram_command_listener.py
+|   
 │
 ├── core/
 │   └── config.py
