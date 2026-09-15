@@ -92,16 +92,7 @@ def run_pipeline():
         "SOC Pipeline kapatıldı."
     )
 
-#TELEGRAM KOMUT DİNLEYİCİ:
-def run_telegram_listener():
-    LOGGER.info("Telegram komut dinleyici başlatılıyor.")
-    while not _shutdown_event.is_set():
-        try:
-            telegram_listener_main()
-        except Exception:
-            LOGGER.exception("Telegram dinleyici hata ile durdu.")
-            if _shutdown_event.wait(5):
-                break
+
 
 # ============================================================
 # DASHBOARD
@@ -212,14 +203,7 @@ def main():
 
     pipeline_thread.start()
     
-    #telegram komut dinleyici çalıştırır.
-    listener_thread = threading.Thread(
-    target=run_telegram_listener,
-    name="soc-telegram-listener",
-    daemon=True,
-    )
     
-    listener_thread.start()
 
     LOGGER.info(
         "SOC Pipeline aktif."
